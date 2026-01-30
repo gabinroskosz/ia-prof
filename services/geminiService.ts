@@ -77,7 +77,7 @@ export const generateSubjectResponse = async (
     return contents;
   };
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({AIzaSyDe9qCVrsfO7MV7le332QvoUIZIE0NUEo4});
 
   const attemptGeneration = async (currentModel: string, currentBudget: number): Promise<{ text: string; model: string }> => {
     const config: any = {
