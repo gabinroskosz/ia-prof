@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IA Prof : La Méthode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              darkBg: '#020617',
+              darkPanel: '#0f172a',
+              darkBorder: '#1e293b',
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        body.light {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+        body.dark {
+            background: radial-gradient(circle at 0% 0%, #0f172a, #020617);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .glass {
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+        }
+        .light .glass {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 20px; border: 3px solid transparent; background-clip: content-box; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border: 3px solid transparent; background-clip: content-box; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* KaTeX Optimization & Fixes */
+        .katex { font-size: 1.1em; line-height: 1.2; text-rendering: optimizeLegibility; }
+        .dark .katex { color: #60a5fa !important; }
+        .dark .katex-display { color: #60a5fa !important; border-radius: 1.25rem; background: rgba(255,255,255,0.03); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; border: 1px solid rgba(255,255,255,0.05); }
+        .katex-display > .katex { font-size: 1.3em; }
+        
+        /* Prose adjustments */
+        .prose strong { font-weight: 800; color: inherit; }
+        .dark .prose strong { color: #f8fafc; }
+        .prose h3 { margin-top: 2.5rem !important; margin-bottom: 1.25rem !important; }
+        
+        /* Translation styling */
+        .markdown-content small {
+            display: block;
+            font-size: 0.85em;
+            opacity: 0.6;
+            margin-top: -0.25rem;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .glass { border: none !important; background: white !important; box-shadow: none !important; }
+            .prose { font-size: 11pt !important; line-height: 1.7; color: black !important; max-width: none !important; }
+            h1, h2, h3, h4 { color: black !important; font-weight: 900 !important; page-break-after: avoid; }
+            .katex { color: black !important; }
+        }
+
+        /* Mobile safe area */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .chat-container {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react/": "https://esm.sh/react@19.0.0/",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/": "https://esm.sh/react-dom@19.0.0/",
+    "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+    "react/jsx-dev-runtime": "https://esm.sh/react@19.0.0/jsx-dev-runtime",
+    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
+    "react-markdown": "https://esm.sh/react-markdown@9.0.1",
+    "remark-math": "https://esm.sh/remark-math@6.0.0",
+    "rehype-katex": "https://esm.sh/rehype-katex@7.0.0",
+    "rehype-raw": "https://esm.sh/rehype-raw@7.0.0",
+    "firebase/": "https://esm.sh/firebase@^12.8.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="light">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
