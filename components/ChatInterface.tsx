@@ -240,7 +240,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
           {(Object.entries(MODE_CONFIG) as [ChatMode, typeof MODE_CONFIG.clear][]).map(([m, config]) => (
             <button 
               key={m} 
-              onClick={() => setActiveMode(m)} 
+              onClick={() => {
+                setActiveMode(m);
+                // Déclenche l'envoi automatique du prompt lié au mode
+                handleSendMessage(undefined, config.autoPrompt, m);
+              }} 
               className={`px-2 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 apple-btn border border-white/20 text-center ${
                 activeMode === m ? config.activeClass : config.inactiveClass + ' bg-white/30 backdrop-blur-lg'
               }`}
