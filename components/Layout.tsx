@@ -30,40 +30,40 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout, onHome }) => 
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 transition-colors duration-300">
-      <nav className="glass mb-8 p-4 rounded-2xl flex justify-between items-center shadow-sm no-print">
+      <nav className="liquid-glass mb-10 p-5 rounded-[2rem] flex justify-between items-center shadow-2xl border-white/80 dark:border-white/20 no-print">
         <div 
           className="flex items-center gap-2 cursor-pointer group"
           onClick={onHome}
         >
-          <div className="bg-slate-900 dark:bg-blue-600 p-2 rounded-lg text-white font-bold group-hover:scale-110 transition-transform">
+          <div className="bg-slate-900 dark:bg-blue-600 p-2.5 rounded-xl text-white font-black group-hover:scale-110 transition-transform shadow-lg">
             IA
           </div>
           <div>
-            <h1 className="font-bold text-slate-800 dark:text-white text-lg leading-none">Prof : La Méthode</h1>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold mt-1">Excellence Académique</p>
+            <h1 className="font-black text-slate-900 dark:text-white text-xl leading-none">Prof : La Méthode</h1>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-black mt-1">Excellence Académique</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <button 
             onClick={toggleDarkMode}
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-amber-400 hover:scale-110 transition-all border border-transparent dark:border-slate-700"
+            className="apple-btn p-3 rounded-2xl bg-white/40 dark:bg-slate-800/40 text-slate-600 dark:text-amber-400 hover:scale-110 transition-all border border-white/60 dark:border-white/10 shadow-md"
             title="Changer le thème"
           >
             {isDark ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.243 16.243l.707.707M7.757 7.757l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.243 16.243l.707.707M7.757 7.757l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
               </svg>
             ) : (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
               </svg>
             )}
           </button>
           
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{user.displayName}</p>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-tight">Apprenti Expert</p>
+            <p className="text-sm font-black text-slate-900 dark:text-slate-100">{user.displayName}</p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-tight">Apprenti Expert</p>
           </div>
         </div>
       </nav>

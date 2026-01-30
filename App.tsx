@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
-import { SubjectId, User } from './types';
-import { SUBJECTS } from './constants';
-import Layout from './components/Layout';
-import SubjectDashboard from './components/SubjectDashboard';
-import SubjectPage from './components/SubjectPage';
+import { SubjectId, User } from './types.ts';
+import { SUBJECTS } from './constants.tsx';
+import Layout from './components/Layout.tsx';
+import SubjectDashboard from './components/SubjectDashboard.tsx';
+import SubjectPage from './components/SubjectPage.tsx';
 
 const GUEST_USER: User = {
   id: 'guest',

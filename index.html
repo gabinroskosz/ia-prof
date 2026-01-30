@@ -15,112 +15,191 @@
               darkBg: '#020617',
               darkPanel: '#0f172a',
               darkBorder: '#1e293b',
+            },
+            animation: {
+              'bubble-float': 'bubbleFloat 6s ease-in-out infinite',
+              'glass-shine': 'glassShine 3s linear infinite',
+              'pulse-soft': 'pulseSoft 4s ease-in-out infinite',
+              'float-slow': 'floatSlow 8s ease-in-out infinite',
+            },
+            keyframes: {
+              bubbleFloat: {
+                '0%, 100%': { transform: 'translateY(0) scale(1) rotate(0deg)' },
+                '50%': { transform: 'translateY(-15px) scale(1.03) rotate(1deg)' },
+              },
+              glassShine: {
+                '0%': { transform: 'translateX(-100%) skewX(-25deg)' },
+                '100%': { transform: 'translateX(300%) skewX(-25deg)' },
+              },
+              pulseSoft: {
+                '0%, 100%': { opacity: 0.4, transform: 'scale(1)' },
+                '50%': { opacity: 0.6, transform: 'scale(1.05)' },
+              },
+              floatSlow: {
+                '0%, 100%': { transform: 'translate(0, 0)' },
+                '33%': { transform: 'translate(10px, -10px)' },
+                '66%': { transform: 'translate(-10px, 5px)' },
+              }
             }
           }
         }
       }
     </script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
-        body.light {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            min-height: 100vh;
-        }
-        body.dark {
-            background: radial-gradient(circle at 0% 0%, #0f172a, #020617);
-            color: #f8fafc;
-            min-height: 100vh;
-        }
-        .glass {
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-        }
-        .light .glass {
-            background: rgba(255, 255, 255, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-        .dark .glass {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .fade-in {
-            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 20px; border: 3px solid transparent; background-clip: content-box; }
-        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border: 3px solid transparent; background-clip: content-box; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* KaTeX Optimization & Fixes */
-        .katex { font-size: 1.1em; line-height: 1.2; text-rendering: optimizeLegibility; }
-        .dark .katex { color: #60a5fa !important; }
-        .dark .katex-display { color: #60a5fa !important; border-radius: 1.25rem; background: rgba(255,255,255,0.03); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; border: 1px solid rgba(255,255,255,0.05); }
-        .katex-display > .katex { font-size: 1.3em; }
-        
-        /* Prose adjustments */
-        .prose strong { font-weight: 800; color: inherit; }
-        .dark .prose strong { color: #f8fafc; }
-        .prose h3 { margin-top: 2.5rem !important; margin-bottom: 1.25rem !important; }
-        
-        /* Translation styling */
-        .markdown-content small {
-            display: block;
-            font-size: 0.85em;
-            opacity: 0.6;
-            margin-top: -0.25rem;
-            margin-bottom: 0.5rem;
-            font-style: italic;
+        body.light {
+            background: 
+              radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+              radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+              radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-color: #f8fafc;
+            background-attachment: fixed;
         }
+
+        body.dark {
+            background: 
+              radial-gradient(at 0% 0%, rgba(30, 41, 59, 0.5) 0, transparent 50%), 
+              radial-gradient(at 50% 0%, rgba(15, 23, 42, 0.8) 0, transparent 50%), 
+              radial-gradient(at 100% 0%, rgba(2, 6, 23, 1) 0, transparent 50%);
+            background-color: #020617;
+            color: #f8fafc;
+            background-attachment: fixed;
+        }
+
+        /* Apple Liquid Glass Core - Borders Reinforced */
+        .liquid-glass {
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            background: rgba(255, 255, 255, 0.65);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 20px 40px -10px rgba(0, 0, 0, 0.15),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+                inset 0 12px 18px -6px rgba(255, 255, 255, 0.7);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .dark .liquid-glass {
+            background: rgba(15, 23, 42, 0.75);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                inset 0 0 0 1.5px rgba(255, 255, 255, 0.1),
+                inset 0 10px 15px -5px rgba(255, 255, 255, 0.15);
+        }
+
+        /* The Specular Reflection Effect */
+        .liquid-glass::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Bubble Elements Physics */
+        .bubble-element {
+            border-radius: 2rem;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .bubble-element:hover {
+            transform: scale(1.02) translateY(-8px);
+            box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Apple Control Buttons - Higher Contrast */
+        .apple-btn {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.85) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .dark .apple-btn {
+            border: 2px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .apple-btn:active {
+            transform: scale(0.92);
+        }
+
+        .apple-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+            pointer-events: none;
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { 
+          background: rgba(0,0,0,0.15); 
+          border-radius: 10px; 
+          border: 2px solid transparent;
+          background-clip: content-box;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { 
+          background: rgba(255,255,255,0.2); 
+        }
+
+        /* Smooth Typography */
+        h1, h2, h3 { letter-spacing: -0.03em; }
 
         @media print {
-            body { background: white !important; color: black !important; }
             .no-print { display: none !important; }
-            .glass { border: none !important; background: white !important; box-shadow: none !important; }
-            .prose { font-size: 11pt !important; line-height: 1.7; color: black !important; max-width: none !important; }
-            h1, h2, h3, h4 { color: black !important; font-weight: 900 !important; page-break-after: avoid; }
-            .katex { color: black !important; }
         }
 
-        /* Mobile safe area */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .chat-container {
-                padding-bottom: env(safe-area-inset-bottom);
-            }
+        /* Image removal animation */
+        .img-remove-btn {
+            transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+            border: 2px solid white !important;
+        }
+        .img-remove-btn:hover {
+            transform: scale(1.8) rotate(90deg);
+            background-color: #ef4444; /* red-500 */
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
         }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react/": "https://esm.sh/react@19.0.0/",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/": "https://esm.sh/react-dom@19.0.0/",
-    "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
-    "react/jsx-dev-runtime": "https://esm.sh/react@19.0.0/jsx-dev-runtime",
-    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
-    "react-markdown": "https://esm.sh/react-markdown@9.0.1",
-    "remark-math": "https://esm.sh/remark-math@6.0.0",
-    "rehype-katex": "https://esm.sh/rehype-katex@7.0.0",
-    "rehype-raw": "https://esm.sh/rehype-raw@7.0.0",
-    "firebase/": "https://esm.sh/firebase@^12.8.0/"
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "firebase/": "https://esm.sh/firebase@^12.8.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "remark-math": "https://esm.sh/remark-math@^6.0.0",
+    "rehype-katex": "https://esm.sh/rehype-katex@^7.0.1",
+    "rehype-raw": "https://esm.sh/rehype-raw@^7.0.0"
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body class="light">
     <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+    <script type="module" src="index.tsx"></script>
 </body>
 </html>
