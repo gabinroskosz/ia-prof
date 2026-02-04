@@ -5,7 +5,8 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import { Subject, Message, User, ChatMode, ScolarityLevel } from '../types';
-import { generateSubjectResponse } from '../services/geminiService';
+import { generateSubjectStream } from '../services/geminiService';
+import { GenerateContentResponse } from "@google/genai";
 
 interface ChatInterfaceProps {
   subject: Subject;
@@ -45,20 +46,6 @@ const MODE_CONFIG: Record<ChatMode, { label: string, activeClass: string, inacti
   }
 };
 
-const ModelBadge: React.FC<{ modelName?: string }> = ({ modelName }) => {
-  if (!modelName || modelName === 'error') return null;
-  const isPro = modelName.includes('pro');
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ml-2 align-middle border backdrop-blur-sm ${
-      isPro 
-        ? 'bg-amber-500/20 text-amber-600 border-amber-500/30' 
-        : 'bg-emerald-500/20 text-emerald-600 border-emerald-500/30'
-    }`}>
-      {isPro ? 'PRO' : 'FLASH'}
-    </span>
-  );
-};
-
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -95,7 +82,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
     setIsTyping(true);
 
     try {
-      const result = await generateSubjectResponse(
+      const { stream, modelUsed } = await generateSubjectStream(
         subject.id,
         subject.name,
         [...messages, userMessage],
@@ -105,13 +92,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
         currentImages
       );
 
-      setMessages(prev => [...prev, { 
-        role: 'model', 
-        text: result.text,
-        modelName: result.model
-      }]);
+      let fullText = "";
+      setMessages(prev => [...prev, { role: 'model', text: "", modelName: modelUsed }]);
+
+      for await (const chunk of stream) {
+        const c = chunk as GenerateContentResponse;
+        fullText += c.text || "";
+        setMessages(prev => {
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1] = { ...newMsgs[newMsgs.length - 1], text: fullText, modelName: modelUsed };
+          return newMsgs;
+        });
+      }
     } catch (error: any) {
-      setMessages(prev => [...prev, { role: 'model', text: "Service temporairement saturé. Veuillez réessayer dans quelques instants.", modelName: 'error' }]);
+      setMessages(prev => [...prev, { role: 'model', text: "Erreur lors de la génération. Veuillez réessayer.", modelName: 'Système' }]);
     } finally {
       setIsTyping(false);
     }
@@ -126,7 +120,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
       {/* HEADER */}
       <div className="p-5 border-b border-white/20 bg-white/20 dark:bg-slate-900/40 backdrop-blur-xl flex items-center justify-between no-print shrink-0 z-10">
         <div className="flex items-center gap-3">
-          <div className={`w-2.5 h-2.5 ${isTyping ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'} rounded-full shadow-[0_0_15px_rgba(52,211,153,0.5)]`}></div>
+          <div className={`w-2.5 h-2.5 ${isTyping ? 'bg-blue-400 animate-pulse' : 'bg-emerald-400'} rounded-full shadow-[0_0_15px_rgba(52,211,153,0.5)]`}></div>
           <h3 className="font-black text-slate-900 dark:text-white uppercase text-[11px] tracking-[0.2em]">{subject.name}</h3>
         </div>
         <div className="flex gap-2">
@@ -170,7 +164,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
                   ? 'bg-slate-900 dark:bg-indigo-600/50 text-white shadow-2xl' 
                   : 'bg-white/70 dark:bg-slate-900/60 text-slate-800 dark:text-slate-100 border border-white/40 dark:border-white/5 shadow-lg backdrop-blur-md'
               }`}>
-                {/* Specular Highlight */}
                 <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent rounded-t-[2rem] pointer-events-none"></div>
                 
                 {msg.images && (
@@ -181,17 +174,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
                 <div className="markdown-content prose dark:prose-invert max-w-none text-[15px] md:text-[16px] leading-relaxed font-medium">
                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>{msg.text}</ReactMarkdown>
                 </div>
+
                 {msg.role === 'model' && (
-                  <div className="mt-4 flex justify-end items-center opacity-60">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Généré par</span>
-                    <ModelBadge modelName={msg.modelName} />
+                  <div className="mt-6 flex justify-end">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 bg-slate-100/50 dark:bg-black/30 px-2.5 py-1 rounded-lg border border-slate-200/50 dark:border-white/5 shadow-sm">
+                      {msg.modelName || 'Gemini 3 Flash'}
+                    </span>
                   </div>
                 )}
               </div>
             </div>
           ))
         )}
-        {isTyping && (
+        {isTyping && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex gap-2 p-4 bg-white/60 dark:bg-slate-800/60 rounded-full w-max shadow-xl backdrop-blur-2xl border border-white/30">
             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
@@ -203,19 +198,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
       {/* INPUT FOOTER */}
       <div className="p-5 md:p-8 bg-white/40 dark:bg-slate-900/40 border-t border-white/20 no-print shrink-0 backdrop-blur-2xl">
         
-        {/* BOUTON "BASES" */}
-        {activeMode === 'advanced' && messages.length > 0 && !isTyping && (
-          <div className="flex justify-start mb-4">
-            <button 
-              onClick={() => handleSendMessage(undefined, "Reprenons par les bases fondamentales.", 'advanced')}
-              className="px-4 py-2 bg-white/60 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/40 apple-btn shadow-sm flex items-center gap-2"
-            >
-              <span className="text-base">💡</span> Les Bases d'abord
-            </button>
-          </div>
-        )}
-
-        {/* APERCU IMAGES AVEC CROIX ANIMEE */}
         {selectedImages.length > 0 && (
           <div className="flex gap-4 mb-5 overflow-x-auto pb-2 no-scrollbar animate-fade-in">
             {selectedImages.map((img, i) => (
@@ -224,7 +206,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
                 <button 
                   onClick={() => removeImage(i)} 
                   className="img-remove-btn absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1.5 shadow-xl z-20 border-2 border-white flex items-center justify-center"
-                  title="Supprimer l'image"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -235,14 +216,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
           </div>
         )}
 
-        {/* MODES STYLE BULLES APPLE */}
         <div className="grid grid-cols-4 gap-3 mb-6">
           {(Object.entries(MODE_CONFIG) as [ChatMode, typeof MODE_CONFIG.clear][]).map(([m, config]) => (
             <button 
               key={m} 
               onClick={() => {
                 setActiveMode(m);
-                // Déclenche l'envoi automatique du prompt lié au mode
                 handleSendMessage(undefined, config.autoPrompt, m);
               }} 
               className={`px-2 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 apple-btn border border-white/20 text-center ${
@@ -259,7 +238,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
             type="button" 
             onClick={() => fileInputRef.current?.click()} 
             className="p-5 bg-white/60 dark:bg-slate-800/60 rounded-2xl text-slate-600 dark:text-slate-300 apple-btn border border-white/40 shadow-sm"
-            title="Ajouter des images"
           >
             <span className="text-2xl">📸</span>
           </button>
@@ -295,7 +273,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, user }) => {
 
         <div className="mt-6 pt-3 text-center border-t border-white/10 opacity-50">
           <p className="text-[8px] uppercase tracking-[0.3em] font-bold leading-tight text-slate-500 dark:text-slate-400">
-            Gemini Prof Advanced Engine • Liquid Glass v2 • Design by IA Master
+            IA Prof Engine v3 • Streaming Enabled • Multi-Model Fallback
           </p>
         </div>
       </div>
