@@ -11,7 +11,8 @@ export const generateSubjectStream = async (
   level: ScolarityLevel,
   images?: string[]
 ) => {
- const ai = new GoogleGenAI({ apiKey: "AIzaSyDe9qCVrsfO7MV7le332QvoUIZIE0NUEo4" });
+  // Toujours utiliser process.env.API_KEY pour initialiser le client
+  const ai = new GoogleGenAI({ apiKey: "AIzaSyDe9qCVrsfO7MV7le332QvoUIZIE0NUEo4" });
 
   // Règle de langue spécifique
   let languageInstruction = "";
@@ -81,27 +82,39 @@ export const generateSubjectStream = async (
     temperature: 0.7,
   };
 
-  // Logique de sélection de modèle avec fallback
+  // Logique de sélection de modèle avec fallback (Pro -> Flash)
   const shouldUsePro = mode === 'exam' || mode === 'advanced';
   
   if (shouldUsePro) {
     try {
-      const stream = await ai.models.generateContentStream({
+      // Tentative avec Gemini 3 Pro
+      const proCall = ai.models.generateContentStream({
         model: 'gemini-3-pro-preview',
         contents,
         config
       });
+
+      // Timeout de 6 secondes pour éviter les attentes interminables (crédits épuisés, latence réseau, etc.)
+      const timeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Timeout Gemini 3 Pro")), 6000)
+      );
+
+      // On lance la course : le premier qui répond gagne
+      const stream = await Promise.race([proCall, timeout]) as any;
       return { stream, modelUsed: 'Gemini 3 Pro' };
+      
     } catch (error) {
-      console.warn("Gemini 3 Pro a échoué, basculement sur Flash...", error);
-      // Fallback vers Flash
+      console.warn("Échec ou lenteur de Gemini 3 Pro, basculement sur Flash :", error);
+      // En cas d'erreur (429, 500) ou de timeout, on laisse le code continuer vers le modèle Flash
     }
   }
 
+  // Modèle par défaut (Flash) pour la rapidité ou en cas d'échec du Pro
   const stream = await ai.models.generateContentStream({
     model: 'gemini-3-flash-preview',
     contents,
     config
   });
+  
   return { stream, modelUsed: 'Gemini 3 Flash' };
 };
